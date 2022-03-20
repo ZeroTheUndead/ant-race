@@ -101,7 +101,6 @@ function AppGrid(props: {
         }
 
         if (raceDone) {
-            console.log({ raceStarted, raceDone });
             setRaceStatus(RaceStatuses.NOT_YET_RUN);
             dispatch(clearAnts());
             setTableData(initAntData);
