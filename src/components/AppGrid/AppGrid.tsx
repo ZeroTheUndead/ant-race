@@ -5,6 +5,7 @@ import {
     updateAntLikelihood, 
     updateAntCalculatedStatus,
     clearAnts,
+    RaceStatuses,
  } from '../../redux/actions/AntActions';
 import Table from 'rc-table';
 import Header from '../Header/Header';
@@ -30,6 +31,7 @@ function AppGrid(props: {
 
   const dispatch = useDispatch();
   const [raceStarted, setRaceStarted] = useState<boolean>(false);
+  const [raceStatus, setRaceStatus] = useState<RaceStatuses>(RaceStatuses.NOT_YET_RUN);
   const [tableData, setTableData] = useState<Array<ITableData> | undefined>(undefined);
   const { tableColumns, initAntData } = tableConfig;
 
@@ -68,36 +70,48 @@ function AppGrid(props: {
             }
         });
 
+        cloneArray.sort((a: IAntState, b: IAntState) => (a.likelihood > b.likelihood) ? -1 : 1);
         setTableData(cloneArray);
 
         if (isTableDoneCalculating(cloneArray)) {
             setRaceStarted(false);
+            setRaceStatus(RaceStatuses.ALL_CALCULATED);
         }
     }
   };
 
   useEffect(() => {
+    
     if (loadData && !tableData) {
         setTableData(initAntData);
     }
 
     if (raceStarted) {
+
+        const raceDone = isTableDoneCalculating(tableData);
+
+        if (raceStatus !== RaceStatuses.IN_PROGRESS) {
+            setRaceStatus(RaceStatuses.IN_PROGRESS);
+        }
+
         const emptyStore = Array.isArray(antsInStore) && antsInStore.length < 1;
         
         if (emptyStore) {
             populateAntsInStore(antsInStore);
         }
 
-        if (!emptyStore && isTableDoneCalculating(tableData)) {
-            setTableData(initAntData);
+        if (raceDone) {
+            console.log({ raceStarted, raceDone });
+            setRaceStatus(RaceStatuses.NOT_YET_RUN);
             dispatch(clearAnts());
+            setTableData(initAntData);
+        } else {
+            checkAndApplyLocalUpdates(antsInStore);
         }
-
-        checkAndApplyLocalUpdates(antsInStore);
     }
   });
 
-  const title = 'RACE-ANTS';
+  const title = 'RACE-ANTS:';
   const headerSize = 'medium';
   const buttonTitle = 'START RACE';
   const disableRaceButton = (!loadData && !raceStarted) || (loadData && raceStarted);
@@ -105,7 +119,7 @@ function AppGrid(props: {
   return (
     <>
       <Header
-        title = {title}
+        title = {`${title} ${raceStatus}`}
         size = {headerSize}
       />
       <HandlerButton

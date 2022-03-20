@@ -2,13 +2,18 @@ import { ActionCreator, Dispatch } from 'redux';
 import { ThunkAction } from 'redux-thunk';
 import { IAntState } from '../reducers/AntReducer';
 import { generateAntWinLikelihoodCalculator } from '../../constants/tableCalc';
-import { getByPlaceholderText } from '@testing-library/react';
 
 export enum AntActionTypes {
     ANT_NAME = 'ANT_NAME',
     ANT_LOADING_STATE = 'ANT_LOADING_STATE',
     ANT_LIKELIHOOD = 'ANT_LIKELIHOOD',
     CLEAR_ANTS = 'CLEAR_ANTS',
+}
+
+export enum RaceStatuses {
+    NOT_YET_RUN = 'NOT YET RUN',
+    IN_PROGRESS = 'IN PROGRESS',
+    ALL_CALCULATED = 'ALL CALCULATED',
 }
 
 export enum AntLoadingStates {
